@@ -143,6 +143,14 @@ type ControllerConfigSpec struct {
 	Ports []corev1.ContainerPort `json:"ports,omitempty"`
 }
 
+type ControllerConfigStatus struct {
+    // Replicas defines the number of active pods for a specific provider.
+    Replicas int32  `json:"replicas"`
+
+    // LabelSelector defines the JSONPath used by HPA to select child pods
+    LabelSelector string    `json:"labelSelector"`
+}
+
 // PodObjectMeta is metadata that is added to the Pods in a provider's
 // Deployment.
 type PodObjectMeta struct {
@@ -170,11 +178,14 @@ type PodObjectMeta struct {
 // ControllerConfig is the CRD type for a packaged controller configuration.
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 // +kubebuilder:resource:scope=Cluster
+// +kubebuilder:subresource:status
+// +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas,selectorpath=.status.labelSelector
 type ControllerConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec ControllerConfigSpec `json:"spec,omitempty"`
+    Status ControllerConfigStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
