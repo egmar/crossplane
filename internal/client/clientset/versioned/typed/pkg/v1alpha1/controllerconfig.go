@@ -40,6 +40,7 @@ type ControllerConfigsGetter interface {
 type ControllerConfigInterface interface {
 	Create(ctx context.Context, controllerConfig *v1alpha1.ControllerConfig, opts v1.CreateOptions) (*v1alpha1.ControllerConfig, error)
 	Update(ctx context.Context, controllerConfig *v1alpha1.ControllerConfig, opts v1.UpdateOptions) (*v1alpha1.ControllerConfig, error)
+	UpdateStatus(ctx context.Context, controllerConfig *v1alpha1.ControllerConfig, opts v1.UpdateOptions) (*v1alpha1.ControllerConfig, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
 	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.ControllerConfig, error)
@@ -121,6 +122,21 @@ func (c *controllerConfigs) Update(ctx context.Context, controllerConfig *v1alph
 	err = c.client.Put().
 		Resource("controllerconfigs").
 		Name(controllerConfig.Name).
+		VersionedParams(&opts, scheme.ParameterCodec).
+		Body(controllerConfig).
+		Do(ctx).
+		Into(result)
+	return
+}
+
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+func (c *controllerConfigs) UpdateStatus(ctx context.Context, controllerConfig *v1alpha1.ControllerConfig, opts v1.UpdateOptions) (result *v1alpha1.ControllerConfig, err error) {
+	result = &v1alpha1.ControllerConfig{}
+	err = c.client.Put().
+		Resource("controllerconfigs").
+		Name(controllerConfig.Name).
+		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(controllerConfig).
 		Do(ctx).

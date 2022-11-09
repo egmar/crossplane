@@ -144,11 +144,11 @@ type ControllerConfigSpec struct {
 }
 
 type ControllerConfigStatus struct {
-    // Replicas defines the number of active pods for a specific provider.
-    Replicas int32  `json:"replicas"`
+	// Replicas defines the number of active pods for a specific provider.
+	Replicas int32 `json:"replicas"`
 
-    // LabelSelector defines the JSONPath used by HPA to select child pods
-    LabelSelector string    `json:"labelSelector"`
+	// Selector defines the JSONPath used by HPA to select child pods
+	Selector string `json:"selector"`
 }
 
 // PodObjectMeta is metadata that is added to the Pods in a provider's
@@ -179,13 +179,13 @@ type PodObjectMeta struct {
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 // +kubebuilder:resource:scope=Cluster
 // +kubebuilder:subresource:status
-// +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas,selectorpath=.status.labelSelector
+// +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas,selectorpath=.status.selector
 type ControllerConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec ControllerConfigSpec `json:"spec,omitempty"`
-    Status ControllerConfigStatus `json:"status,omitempty"`
+	Spec   ControllerConfigSpec   `json:"spec,omitempty"`
+	Status ControllerConfigStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

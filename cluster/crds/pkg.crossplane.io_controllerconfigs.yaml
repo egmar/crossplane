@@ -1547,10 +1547,30 @@ spec:
                   type: object
                 type: array
             type: object
+          status:
+            properties:
+              replicas:
+                description: Replicas defines the number of active pods for a specific
+                  provider.
+                format: int32
+                type: integer
+              selector:
+                description: Selector defines the JSONPath used by HPA to select child
+                  pods
+                type: string
+            required:
+            - replicas
+            - selector
+            type: object
         type: object
     served: true
     storage: true
-    subresources: {}
+    subresources:
+      scale:
+        labelSelectorPath: .status.selector
+        specReplicasPath: .spec.replicas
+        statusReplicasPath: .status.replicas
+      status: {}
 status:
   acceptedNames:
     kind: ""

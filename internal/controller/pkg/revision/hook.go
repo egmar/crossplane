@@ -21,6 +21,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -144,6 +145,10 @@ func (h *ProviderHooks) Post(ctx context.Context, pkg runtime.Object, pr v1.Pack
 	}
 	pr.SetControllerReference(v1.ControllerReference{Name: d.GetName()})
 
+	if err := h.updateControllerConfigStatus(ctx, pr, d); err != nil {
+		return errors.Wrap(err, "Unable to update ControllerConfig status")
+	}
+
 	for _, c := range d.Status.Conditions {
 		if c.Type == appsv1.DeploymentAvailable {
 			if c.Status == corev1.ConditionTrue {
@@ -171,8 +176,35 @@ func (h *ProviderHooks) getControllerConfig(ctx context.Context, pr v1.PackageRe
 		return nil, nil
 	}
 	cc := &v1alpha1.ControllerConfig{}
-	err := h.client.Get(ctx, types.NamespacedName{Name: pr.GetControllerConfigRef().Name}, cc)
-	return cc, errors.Wrap(err, errGetControllerConfig)
+	if err := h.client.Get(ctx, types.NamespacedName{Name: pr.GetControllerConfigRef().Name}, cc); err != nil {
+		return nil, errors.Wrap(err, errGetControllerConfig)
+	}
+	return cc, nil
+}
+
+func (h *ProviderHooks) updateControllerConfigStatus(ctx context.Context, pr v1.PackageRevision, d *appsv1.Deployment) error {
+	if pr.GetControllerConfigRef() == nil {
+		return nil
+	}
+	cc := &v1alpha1.ControllerConfig{}
+	if err := h.client.Get(ctx, types.NamespacedName{Name: pr.GetControllerConfigRef().Name}, cc); err != nil {
+		return errors.Wrap(err, errGetControllerConfig)
+	}
+
+	replicas := *d.Spec.Replicas
+	selector, err := metav1.LabelSelectorAsSelector(d.Spec.Selector)
+	if err != nil {
+		return errors.Wrap(err, "Unable to retrieve deployment selector.")
+	}
+
+	cc.Status.Replicas = replicas
+	cc.Status.Selector = selector.String()
+
+	if err := h.client.Status().Update(ctx, cc); err != nil {
+		return errors.Wrap(err, errGetControllerConfig)
+	}
+
+	return nil
 }
 
 // ConfigurationHooks performs operations for a configuration package before and
