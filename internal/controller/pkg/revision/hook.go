@@ -38,6 +38,7 @@ const (
 	errNotProvider                   = "not a provider package"
 	errNotProviderRevision           = "not a provider revision"
 	errGetControllerConfig           = "cannot get referenced controller config"
+	errGetProviderDeploymentSelector = "unable to retrieve deployment selector"
 	errGetServiceAccount             = "cannot get Crossplane service account"
 	errDeleteProviderDeployment      = "cannot delete provider package deployment"
 	errDeleteProviderSA              = "cannot delete provider package service account"
@@ -194,7 +195,7 @@ func (h *ProviderHooks) updateControllerConfigStatus(ctx context.Context, pr v1.
 	replicas := *d.Spec.Replicas
 	selector, err := metav1.LabelSelectorAsSelector(d.Spec.Selector)
 	if err != nil {
-		return errors.Wrap(err, "Unable to retrieve deployment selector.")
+		return errors.Wrap(err, errGetProviderDeploymentSelector)
 	}
 
 	cc.Status.Replicas = replicas

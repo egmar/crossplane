@@ -143,11 +143,12 @@ type ControllerConfigSpec struct {
 	Ports []corev1.ContainerPort `json:"ports,omitempty"`
 }
 
+// ControllerConfigStatus represents the current status of a ControllerConfig
 type ControllerConfigStatus struct {
 	// Replicas defines the number of active pods for a specific provider.
 	Replicas int32 `json:"replicas"`
 
-	// Selector defines the JSONPath used by HPA to select child pods
+	// Selector defines the JSONPath used by HPA to select child pods.
 	Selector string `json:"selector"`
 }
 
