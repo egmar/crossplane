@@ -1548,6 +1548,8 @@ spec:
                 type: array
             type: object
           status:
+            description: ControllerConfigStatus represents the current status of a
+              ControllerConfig
             properties:
               replicas:
                 description: Replicas defines the number of active pods for a specific
@@ -1556,7 +1558,7 @@ spec:
                 type: integer
               selector:
                 description: Selector defines the JSONPath used by HPA to select child
-                  pods
+                  pods.
                 type: string
             required:
             - replicas
